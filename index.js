@@ -44,8 +44,16 @@ function stateful (Component, options) {
 
   function setState (model) {
     return function (values) {
+      if (!(typeof values === 'object' || typeof values === 'function' || values == null)) {
+        console.warn('setState(...): takes an object of state variables to update or a ' +
+          'function which returns an object of state variables.')
+      }
+
       if (typeof states[model.path] === 'object' && typeof values === 'object') {
         states[model.path] = assign({}, states[model.path], values)
+      } else if (typeof values === 'function') {
+        const state = states[model.path]
+        states[model.path] = assign({}, state, values(state, model.props))
       } else {
         states[model.path] = values
       }
